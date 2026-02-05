@@ -1,0 +1,9 @@
+# Documentation
+doc/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Docker
+mongo_data/
