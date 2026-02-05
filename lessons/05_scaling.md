@@ -2,8 +2,6 @@
 
 As your application grows, a single MongoDB server might not be enough. This lesson introduces the two main scaling strategies described in the tutorial: **Replica Sets** and **Sharding**.
 
-> **Note**: These are advanced configurations. A simple Docker Compose setup usually runs a "Standalone" instance. Running a Replica Set in Docker requires a more complex configuration (multiple containers networking together).
-
 ## 1. High Availability: Replica Sets
 A **Replica Set** is a group of `mongod` processes that maintain the same data set.
 
@@ -13,10 +11,45 @@ A **Replica Set** is a group of `mongod` processes that maintain the same data s
 
 In production, you should always run a Replica Set (minimum 3 nodes) to prevent data loss.
 
-### How to Enable in Docker (Conceptual)
-To run a replica set in Docker, you would:
-1.  Start MongoDB with the `--replSet rs0` argument.
-2.  Connect to the shell and run `rs.initiate()`.
+### Practical Demo: Running a Replica Set
+We have created a separate configuration file `docker-compose-replica.yaml` to demonstrate a 3-node cluster.
+
+**1. Stop the existing single instance:**
+```bash
+docker-compose down
+```
+
+**2. Start the Replica Set:**
+```bash
+docker-compose -f docker-compose-replica.yaml up -d
+```
+This starts 3 containers: `mongo1`, `mongo2`, and `mongo3`.
+*Note: The configuration includes a healthcheck that automatically initializes the replica set for you.*
+
+**3. Check the Status:**
+Wait about 30 seconds for them to start and elect a primary, then check the status:
+
+```bash
+docker exec -it mongo1 mongosh --eval "rs.status()"
+```
+You should see one member as `"stateStr": "PRIMARY"` and others as `"SECONDARY"`.
+
+**4. Test Failover:**
+Stop the primary node (assume `mongo1` is primary):
+```bash
+docker-compose -f docker-compose-replica.yaml stop mongo1
+```
+Check status on `mongo2`:
+```bash
+docker exec -it mongo2 mongosh --eval "rs.status()"
+```
+You will see that `mongo2` or `mongo3` has likely been promoted to PRIMARY.
+
+**5. Clean Up:**
+When finished, shut down the cluster to save resources:
+```bash
+docker-compose -f docker-compose-replica.yaml down -v
+```
 
 ## 2. Horizontal Scaling: Sharding
 **Sharding** distributes data across multiple machines.
@@ -34,5 +67,3 @@ The guide recommends considering **Managed Services** (like MongoDB Atlas or Dig
 
 - **Self-Hosted (Docker)**: Cheaper, full control, but you manage backups, scaling, and failover manually.
 - **Managed**: Higher cost, but upgrades, backups, and scaling are automated.
-
-For learning and development, Docker is perfect. For large-scale production, a managed service is often safer unless you have a dedicated DevOps team.

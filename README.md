@@ -15,6 +15,11 @@ This repository includes detailed lessons adapted from the DigitalOcean tutorial
 - [Lesson 4: Operations (Backup, Restore, Monitor)](./lessons/04_operations.md)
 - [Lesson 5: Scaling Concepts](./lessons/05_scaling.md)
 
+## Advanced: Replica Set Demo
+For users interested in scaling, we have included a practical specific configuration to run a 3-node MongoDB Replica Set.
+- **Config**: `docker-compose-replica.yaml`
+- **Instructions**: See [Lesson 5](./lessons/05_scaling.md) for details on how to start and test the cluster.
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine.
